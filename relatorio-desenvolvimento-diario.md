@@ -21,6 +21,8 @@ A cada ciclo de entrega e conclusão de fase solicitada pelo usuário, este arqu
      - O desenvolvimento do `essence-financeiro` ocorre como aplicação autônoma (Next.js App Router + TypeScript + Zod + Supabase SSR) com conexão ao banco de dados compartilhado Supabase (`hndixreompnljpohxprl`).
   3. **Criação do Diário de Bordo**:
      - Criação deste documento (`relatorio-desenvolvimento-diario.md`) para rastreamento contínuo de entregas por fase e dia.
+  4. **Documentação Detalhada das 13 Fases (`base-do-projeto.md`)**:
+     - Criação do arquivo `base-do-projeto.md` consolidando a visão arquitetural, princípios fundamentais e o detalhamento técnico exaustivo das 13 Fases de Implantação para consultas e auditorias futuras.
 * **Decisões Arquiteturais**:
   - Adoção de stack autônoma com Next.js 16 / TypeScript / TailwindCSS no repositório `essence-financeiro` para viabilizar testes ponta a ponta com sandbox e webhooks locais antes do acoplamento cirúrgico ao CRM.
 * **Status Atual**:
