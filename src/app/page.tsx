@@ -213,11 +213,11 @@ export default async function Home() {
               </h1>
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                FASE 5 CONCLUÍDA
+                FASE 6 CONCLUÍDA
               </span>
             </div>
             <p className="text-slate-500 text-sm mt-1">
-              Motor de Cobranças Pix, Boleto e Link com Idempotência & isolamento multi-tenant ativo
+              Ingestão assíncrona de webhooks com deduplicação atômica, liquidação automática e auditoria
             </p>
           </div>
 
@@ -259,18 +259,18 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Card 2: Motor de Cobranças */}
+          {/* Card 2: Webhooks & Ingestão */}
           <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
             <div className="flex items-center justify-between text-xs font-bold text-slate-400 tracking-wider uppercase mb-3">
-              <span>COBRANÇAS (FASE 5)</span>
-              <QrCode size={18} className="text-amber-500" />
+              <span>WEBHOOKS (FASE 6)</span>
+              <RotateCw size={18} className="text-emerald-500" />
             </div>
             <div className="text-2xl font-black text-slate-900">
-              Pix & Boleto
+              Ingestão Ativa
             </div>
             <div className="text-xs text-slate-500 mt-2 flex items-center gap-1">
               <ShieldCheck size={14} className="text-emerald-500" />
-              QR Code, Copia e Cola & Barcode
+              Deduplicação & Liquidação
             </div>
           </div>
 
@@ -295,94 +295,105 @@ export default async function Home() {
               <span>TESTES AUTOMATIZADOS</span>
               <CheckCircle2 size={18} className="text-emerald-500" />
             </div>
-            <div className="text-2xl font-black text-emerald-600">78 / 78 (100%)</div>
+            <div className="text-2xl font-black text-emerald-600">91 / 91 (100%)</div>
             <div className="text-xs text-slate-500 mt-2">
-              15 arquivos de teste aprovados
+              17 arquivos de teste aprovados
             </div>
           </div>
         </div>
 
-        {/* PAINEL DE CONECTIVIDADE LIVE DA FASE 5 */}
+        {/* PAINEL DE OPERAÇÃO DA FASE 6 */}
         <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-100 gap-3">
             <div>
               <div className="flex items-center gap-2">
                 <Sparkles size={20} className="text-amber-500" />
                 <h2 className="text-lg font-bold text-slate-900">
-                  Motor Operacional — FASE 5: Charges (Contas a Receber)
+                  Motor de Webhooks — FASE 6: Ingestão Assíncrona & Liquidação
                 </h2>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Serviço <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-xs">FinancialChargeService</code> ativo com emissão multi-método, idempotência estrita, resiliência a timeout e cancelamento.
+                Endpoint <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-xs">/api/webhooks/asaas</code> com ingestão atômica em <code className="font-mono text-xs">financial_webhook_events</code>, conciliação de status e geração de recibos.
               </p>
             </div>
             <div className="flex items-center gap-2">
               <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                Endpoints /api/financial/charges Ativos
+                Endpoint /api/webhooks/asaas Ativo
               </span>
             </div>
           </div>
 
           {isConnected && accountInfo ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-              {/* Coluna 1: Dados da Conta */}
+              {/* Coluna 1: Ingestão e Segurança */}
               <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60">
                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <Building2 size={16} className="text-slate-600" />
-                  <span>Conta Asaas Vinculada</span>
-                </div>
-                <div className="font-bold text-slate-900 text-sm">{accountInfo.name}</div>
-                <div className="text-xs text-slate-500 mt-1 font-mono">{accountInfo.email}</div>
-                <div className="text-xs text-slate-500 mt-1">CNPJ: {accountInfo.cpfCnpj}</div>
-              </div>
-
-              {/* Coluna 2: Métodos de Cobrança Suportados */}
-              <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <CreditCard size={16} className="text-slate-600" />
-                  <span>Métodos de Pagamento</span>
-                </div>
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-600">Pix:</span>
-                    <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                      QR Code + Copia e Cola
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-600">Boleto:</span>
-                    <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                      Linha Digitável + PDF
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-600">Cartão:</span>
-                    <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                      Invoice Hospedada
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Coluna 3: Garantias de Idempotência */}
-              <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <KeyRound size={16} className="text-slate-600" />
-                  <span>Garantias & Resiliência</span>
+                  <Lock size={16} className="text-slate-600" />
+                  <span>Segurança & Ingestão</span>
                 </div>
                 <div className="space-y-1.5 text-xs text-slate-600">
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-emerald-500" />
-                    <span>Idempotency-Key obrigatória</span>
+                    <span>Header asaas-access-token</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-emerald-500" />
-                    <span>Timeout ➔ PENDING_RECONCILIATION</span>
+                    <span>Deduplicação UNIQUE (provider, event_id)</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-emerald-500" />
-                    <span>Cancelamento sincronizado com gateway</span>
+                    <span>Resposta imediata &lt; 200ms</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Coluna 2: Transições de Estado */}
+              <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <RotateCw size={16} className="text-slate-600" />
+                  <span>Transições de Estado</span>
+                </div>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-600">RECEIVED / CONFIRMED:</span>
+                    <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                      PAID + Recibo
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-600">OVERDUE:</span>
+                    <span className="font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                      OVERDUE
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-600">REFUNDED / DELETED:</span>
+                    <span className="font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
+                      REFUNDED / CANCELLED
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Coluna 3: Liquidação e Auditoria */}
+              <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <Receipt size={16} className="text-slate-600" />
+                  <span>Liquidação & Auditoria</span>
+                </div>
+                <div className="space-y-1.5 text-xs text-slate-600">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span>Recibos em financial_receipts</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span>Taxas e líquidos calculados</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span>Auditoria imutável em cada evento</span>
                   </div>
                 </div>
               </div>
@@ -404,15 +415,15 @@ export default async function Home() {
               </div>
               <div>
                 <div className="text-xs font-bold text-amber-950 uppercase tracking-wide">
-                  Pronto para a FASE 6 — Webhooks & Ingestão Assíncrona
+                  Pronto para a FASE 7 — Receipts + Reconciliation
                 </div>
                 <div className="text-xs text-amber-800 mt-0.5">
-                  Com o motor de cobranças consolidado, o próximo ciclo implementará a ingestão de notificações do Asaas (<code className="font-mono text-xs bg-amber-100 px-1 py-0.2 rounded">/api/webhooks/asaas</code>) com deduplicação atômica e liquidação automática.
+                  Com a ingestão assíncrona de webhooks homologada, o próximo passo implementará o serviço de reconciliação ativa (cron / job sob demanda para cobranças em <code className="font-mono text-xs bg-amber-100 px-1 py-0.2 rounded">PENDING_RECONCILIATION</code>) e emissão de recibos/comprovantes em PDF.
                 </div>
               </div>
             </div>
             <div className="hidden lg:flex items-center gap-2 font-bold text-xs text-amber-950 bg-amber-200/60 px-3 py-1.5 rounded-lg shrink-0">
-              <span>Próxima: Fase 6</span>
+              <span>Próxima: Fase 7</span>
               <ArrowRight size={14} />
             </div>
           </div>
@@ -424,10 +435,30 @@ export default async function Home() {
           <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
             <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
               <CheckCircle2 size={18} className="text-emerald-500" />
-              <span>Suíte de Testes (78 testes aprovados)</span>
+              <span>Suíte de Testes (91 testes aprovados)</span>
             </h3>
 
             <div className="space-y-3 text-xs">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <div className="font-semibold text-slate-800">tests/financial-webhook-processor.test.ts</div>
+                  <div className="text-slate-500 text-[11px]">Liquidação, Recibos, Deduplicação e Auditoria</div>
+                </div>
+                <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  8/8 Pass
+                </span>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <div className="font-semibold text-slate-800">tests/asaas-webhook-route.test.ts</div>
+                  <div className="text-slate-500 text-[11px]">Auth Header, Deduplicação 23505 e HTTP Responses</div>
+                </div>
+                <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  5/5 Pass
+                </span>
+              </div>
+
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
                 <div>
                   <div className="font-semibold text-slate-800">tests/financial-charge-service.test.ts</div>
@@ -450,31 +481,11 @@ export default async function Home() {
 
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
                 <div>
-                  <div className="font-semibold text-slate-800">tests/financial-customer-service.test.ts</div>
-                  <div className="text-slate-500 text-[11px]">Sincronização CRM Contact ➔ Asaas Pagador</div>
+                  <div className="font-semibold text-slate-800">Demais Testes das Fases 1 a 4</div>
+                  <div className="text-slate-500 text-[11px]">Customers, SPI Provider, Schemas, RBAC, RLS, Domain Errors, HTTP Client</div>
                 </div>
                 <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  5/5 Pass
-                </span>
-              </div>
-
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-slate-800">tests/financial-customer-sandbox.test.ts</div>
-                  <div className="text-slate-500 text-[11px]">Criação e consulta real no Asaas Sandbox</div>
-                </div>
-                <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  1/1 Pass
-                </span>
-              </div>
-
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-slate-800">Testes das Fases 1 a 3</div>
-                  <div className="text-slate-500 text-[11px]">SPI Provider, Schemas, RBAC, RLS, Domain Errors, HTTP Client</div>
-                </div>
-                <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  64/64 Pass
+                  70/70 Pass
                 </span>
               </div>
             </div>
@@ -528,12 +539,20 @@ export default async function Home() {
                 <span className="text-[11px] font-bold text-emerald-700 uppercase">Concluída</span>
               </div>
 
+              <div className="p-2.5 bg-emerald-50/80 rounded-xl border border-emerald-200 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-emerald-600" />
+                  <span className="font-semibold text-emerald-950">FASE 6: Webhooks & Ingestão Assíncrona</span>
+                </div>
+                <span className="text-[11px] font-bold text-emerald-700 uppercase">Concluída</span>
+              </div>
+
               <div className="p-2.5 bg-amber-50/60 rounded-xl border border-amber-300 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full border-2 border-amber-500 flex items-center justify-center">
                     <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></div>
                   </div>
-                  <span className="font-bold text-amber-950">FASE 6: Webhooks & Ingestão Assíncrona</span>
+                  <span className="font-bold text-amber-950">FASE 7: Receipts + Reconciliation</span>
                 </div>
                 <span className="text-[11px] font-bold text-amber-700 uppercase">Aguardando Validação</span>
               </div>

@@ -229,9 +229,51 @@ A cada ciclo de entrega e conclusão de fase solicitada pelo usuário, este arqu
   - **FASE 5 CONCLUÍDA COM SUCESSO**.
   - Parada obrigatória: aguardando validação do usuário para liberação da **FASE 6 — Webhooks & Ingestão Assíncrona**.
 
+### [2026-09-15] — Conclusão da FASE 6: Webhooks & Ingestão Assíncrona
+
+* **Objetivo da Sessão**: Implementar a camada completa de ingestão de webhooks e conciliação assíncrona do gateway Asaas, garantindo deduplicação atômica em nível de banco de dados (`23505`), transição canônica de estados, geração automática de extrato de liquidação (`financial_receipts`), trilha de auditoria imutável e proteção por token de autenticidade (`asaas-access-token`).
+* **Tarefas Executadas**:
+  1. **Repositório de Liquidações `FinancialReceiptRepository` (`src/modules/financial/repositories/financial-receipt.repository.ts`)**:
+     - Criação da camada de persistência para `financial_receipts`, armazenando liquidações confirmadas com valores brutos, taxas do gateway e valores líquidos em centavos inteiros (`gross_amount_cents`, `fee_amount_cents`, `net_amount_cents`).
+     - Consultas por ID e por ID da cobrança (`findByChargeId`), viabilizando checagem de recibos existentes e prevenindo duplicações.
+  2. **Processador Desacoplado `FinancialWebhookProcessor` (`src/modules/financial/services/financial-webhook-processor.ts`)**:
+     - Identificação inteligente da cobrança local por `external_id` (ex: `pay_...`) com fallback resiliente para `externalReference` (chave de idempotência).
+     - Mapeamento de status canônico Asaas ➔ Essence (`PAYMENT_RECEIVED`/`CONFIRMED` ➔ `PAID`, `PAYMENT_OVERDUE` ➔ `OVERDUE`, `PAYMENT_REFUNDED` ➔ `REFUNDED`, `PAYMENT_DELETED` ➔ `CANCELLED`).
+     - Liquidação automática de cobranças pagas com criação transacional de registro em `financial_receipts` (ou reutilização idempotente do recibo existente).
+     - Registro de trilha de auditoria imutável via `FinancialAuditService` com identificação do ator como sistema (`system:webhook`).
+     - Atualização de status de processamento do evento de webhook para `PROCESSED` ou `IGNORED` (caso a cobrança não pertença ao Essence).
+  3. **Endpoint HTTP de Webhooks (`src/app/api/webhooks/asaas/route.ts`)**:
+     - Validação de autenticidade baseada no header `asaas-access-token` contra `ASAAS_WEBHOOK_SECRET` (retornando HTTP 401 se inválido).
+     - Ingestão atômica em `financial_webhook_events` com deduplicação única `(provider, provider_event_id)`: caso o evento já tenha sido registrado (código `23505`), retorna imediatamente `HTTP 200 { received: true, deduplicated: true }` sem reprocessamento.
+     - Resposta veloz (< 200ms) com retorno formatado `HTTP 200 { received: true, processed: true }`.
+     - Tratamento robusto de erros e incremento automático do contador de retentativas (`retry_count`).
+  4. **Ajustes de Infraestrutura Multi-Tenant**:
+     - Aprimoramento de `FinancialChargeRepository`, `FinancialAuditRepository` e `FinancialAuditService` para permitir resolução de entidades e gravação de auditoria em contexto de chamadas assíncronas do gateway (onde a requisição HTTP original não possui sessão de usuário Supabase).
+  5. **Bateria de Testes Automatizados (Vitest)**:
+     - 91 testes aprovados (17 arquivos de teste, 100% de sucesso).
+     - `tests/financial-webhook-processor.test.ts` (8 testes unitários):
+       - Liquidação com sucesso de `PAYMENT_RECEIVED`, atualização de valores em centavos e criação de recibo.
+       - Atualização para `OVERDUE` em `PAYMENT_OVERDUE`.
+       - Atualização para `REFUNDED` em `PAYMENT_REFUNDED`.
+       - Atualização para `CANCELLED` em `PAYMENT_DELETED`.
+       - Prevenção de recibos duplicados para o mesmo pagamento.
+       - Resolução por chave de idempotência (`externalReference`).
+       - Tratamento gracioso de eventos de cobranças desconhecidas (`IGNORED`).
+       - Tratamento de payloads sem dados de pagamento (`IGNORED`).
+     - `tests/asaas-webhook-route.test.ts` (5 testes de integração):
+       - Rejeição com HTTP 401 para token ausente/inválido.
+       - Rejeição com HTTP 400 para JSON inválido ou ausência de evento.
+       - Deduplicação atômica imediata com HTTP 200 (`deduplicated: true`).
+       - Processamento ponta a ponta com sucesso (`processed: true`).
+  6. **Dashboard Atualizado (`src/app/page.tsx`)**:
+     - Painel atualizado para **FASE 6 CONCLUÍDA**, exibindo ingestão ativa de webhooks, status de deduplicação, contagem de testes (91/91) e preparação para a Fase 7.
+  7. **Compilação e Tipagem**:
+     - `npx tsc --noEmit` aprovado com 0 erros.
+* **Critério de Parada**: Respeitado integralmente. Webhooks homologados e testados com deduplicação atômica e liquidação automática.
+* **Status Atual**:
+  - **FASE 6 CONCLUÍDA COM SUCESSO**.
+  - Parada obrigatória: aguardando validação do usuário para liberação da **FASE 7 — Receipts + Reconciliation**.
+
 ---
 
 <!-- Próximos registros serão adicionados incrementalmente ao final de cada fase/tarefa -->
-
-
-

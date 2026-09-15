@@ -14,9 +14,9 @@ export class FinancialAuditService {
 
   constructor(
     supabase: SupabaseClient,
-    private readonly tenant: TenantContext
+    private readonly tenant?: TenantContext
   ) {
-    this.auditRepo = new FinancialAuditRepository(supabase, tenant.organizationId);
+    this.auditRepo = new FinancialAuditRepository(supabase, tenant?.organizationId);
   }
 
   /**
@@ -31,12 +31,17 @@ export class FinancialAuditService {
     requestId?: string;
     ipAddress?: string;
     userAgent?: string;
+    organizationId?: string;
+    actorId?: string;
+    actorEmail?: string;
+    actorRole?: string;
   }): Promise<FinancialAuditLog> {
     return this.auditRepo.log({
+      organization_id: params.organizationId || this.tenant?.organizationId,
       request_id: params.requestId,
-      actor_id: this.tenant.userId,
-      actor_email: this.tenant.email,
-      actor_role: this.tenant.role,
+      actor_id: params.actorId || this.tenant?.userId || 'system',
+      actor_email: params.actorEmail || this.tenant?.email || 'system@essence.local',
+      actor_role: params.actorRole || this.tenant?.role || 'system',
       action: params.action,
       entity_name: params.entityName,
       entity_id: params.entityId,

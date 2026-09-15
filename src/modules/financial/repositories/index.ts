@@ -1,10 +1,7 @@
-/**
- * 🗄️ Barrel Export — Financial Repositories
- */
-
-export { FinancialAccountRepository } from './financial-account.repository';
-export { FinancialCustomerRepository } from './financial-customer.repository';
-export { FinancialChargeRepository } from './financial-charge.repository';
-export { FinancialWebhookRepository } from './financial-webhook.repository';
-export { FinancialAuditRepository } from './financial-audit.repository';
-export { FinancialSettingsRepository } from './financial-settings.repository';
+export * from './financial-account.repository';
+export * from './financial-customer.repository';
+export * from './financial-charge.repository';
+export * from './financial-webhook.repository';
+export * from './financial-audit.repository';
+export * from './financial-settings.repository';
+export * from './financial-receipt.repository';

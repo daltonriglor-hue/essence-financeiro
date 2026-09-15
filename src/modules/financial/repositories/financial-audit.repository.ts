@@ -8,13 +8,14 @@ import type { FinancialAuditLog } from '../domain/types';
 export class FinancialAuditRepository {
   constructor(
     private readonly supabase: SupabaseClient,
-    private readonly organizationId: string
+    private readonly organizationId?: string
   ) {}
 
   /**
    * Registra um novo evento de auditoria (insert-only, nunca atualiza).
    */
   async log(params: {
+    organization_id?: string;
     request_id?: string;
     actor_id?: string;
     actor_email?: string;
@@ -27,11 +28,14 @@ export class FinancialAuditRepository {
     ip_address?: string;
     user_agent?: string;
   }): Promise<FinancialAuditLog> {
+    const orgId = params.organization_id || this.organizationId;
+    if (!orgId) throw new Error('organization_id é obrigatório para registrar auditoria');
+
     const { data, error } = await this.supabase
       .from('financial_audit_logs')
       .insert({
-        organization_id: this.organizationId,
         ...params,
+        organization_id: orgId,
       })
       .select()
       .single();

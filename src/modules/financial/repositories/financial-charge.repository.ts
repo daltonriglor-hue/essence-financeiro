@@ -11,16 +11,18 @@ import { EntityNotFoundError } from '../domain/errors';
 export class FinancialChargeRepository {
   constructor(
     private readonly supabase: SupabaseClient,
-    private readonly organizationId: string
+    private readonly organizationId?: string
   ) {}
 
   async findById(id: string): Promise<FinancialCharge> {
-    const { data, error } = await this.supabase
+    let query = this.supabase
       .from('financial_charges')
       .select('*')
-      .eq('id', id)
-      .eq('organization_id', this.organizationId)
-      .single();
+      .eq('id', id);
+    if (this.organizationId) {
+      query = query.eq('organization_id', this.organizationId);
+    }
+    const { data, error } = await query.single();
 
     if (error || !data) throw new EntityNotFoundError('financial_charges', id);
     return data;
@@ -31,12 +33,14 @@ export class FinancialChargeRepository {
    * Retorna null se não existir (chave livre).
    */
   async findByIdempotencyKey(key: string): Promise<FinancialCharge | null> {
-    const { data, error } = await this.supabase
+    let query = this.supabase
       .from('financial_charges')
       .select('*')
-      .eq('idempotency_key', key)
-      .eq('organization_id', this.organizationId)
-      .maybeSingle();
+      .eq('idempotency_key', key);
+    if (this.organizationId) {
+      query = query.eq('organization_id', this.organizationId);
+    }
+    const { data, error } = await query.maybeSingle();
 
     if (error) throw error;
     return data;
@@ -46,12 +50,14 @@ export class FinancialChargeRepository {
    * Busca cobranças pelo ID externo do provedor.
    */
   async findByExternalId(externalId: string): Promise<FinancialCharge | null> {
-    const { data, error } = await this.supabase
+    let query = this.supabase
       .from('financial_charges')
       .select('*')
-      .eq('external_id', externalId)
-      .eq('organization_id', this.organizationId)
-      .maybeSingle();
+      .eq('external_id', externalId);
+    if (this.organizationId) {
+      query = query.eq('organization_id', this.organizationId);
+    }
+    const { data, error } = await query.maybeSingle();
 
     if (error) throw error;
     return data;
@@ -61,11 +67,14 @@ export class FinancialChargeRepository {
    * Cria nova cobrança com idempotency_key obrigatória.
    */
   async create(params: Omit<FinancialCharge, 'id' | 'created_at' | 'updated_at'>): Promise<FinancialCharge> {
+    const orgId = params.organization_id || this.organizationId;
+    if (!orgId) throw new Error('organization_id é obrigatório para criar cobrança');
+
     const { data, error } = await this.supabase
       .from('financial_charges')
       .insert({
         ...params,
-        organization_id: this.organizationId,
+        organization_id: orgId,
       })
       .select()
       .single();
@@ -93,13 +102,14 @@ export class FinancialChargeRepository {
       bank_slip_pdf_url?: string;
     }
   ): Promise<FinancialCharge> {
-    const { data, error } = await this.supabase
+    let query = this.supabase
       .from('financial_charges')
       .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .eq('organization_id', this.organizationId)
-      .select()
-      .single();
+      .eq('id', id);
+    if (this.organizationId) {
+      query = query.eq('organization_id', this.organizationId);
+    }
+    const { data, error } = await query.select().single();
 
     if (error || !data) throw new EntityNotFoundError('financial_charges', id);
     return data;
@@ -123,10 +133,13 @@ export class FinancialChargeRepository {
 
     let query = this.supabase
       .from('financial_charges')
-      .select('*', { count: 'exact' })
-      .eq('organization_id', this.organizationId)
-      .order('created_at', { ascending: false })
-      .range(from, to);
+      .select('*', { count: 'exact' });
+
+    if (this.organizationId) {
+      query = query.eq('organization_id', this.organizationId);
+    }
+
+    query = query.order('created_at', { ascending: false }).range(from, to);
 
     if (params?.status) query = query.eq('status', params.status);
     if (params?.customerId) query = query.eq('customer_id', params.customerId);
@@ -143,13 +156,18 @@ export class FinancialChargeRepository {
    * Busca cobranças em estado PENDING_RECONCILIATION (para conciliação ativa).
    */
   async findPendingReconciliation(): Promise<FinancialCharge[]> {
-    const { data, error } = await this.supabase
+    let query = this.supabase
       .from('financial_charges')
       .select('*')
-      .eq('organization_id', this.organizationId)
-      .eq('status', 'PENDING_RECONCILIATION')
-      .order('created_at', { ascending: true });
+      .eq('status', 'PENDING_RECONCILIATION');
 
+    if (this.organizationId) {
+      query = query.eq('organization_id', this.organizationId);
+    }
+
+    query = query.order('created_at', { ascending: true });
+
+    const { data, error } = await query;
     if (error) throw error;
     return data ?? [];
   }
