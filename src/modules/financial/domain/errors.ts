@@ -93,3 +93,12 @@ export class InsufficientFinancialPermissionError extends FinancialDomainError {
     );
   }
 }
+
+export class ValidationError extends FinancialDomainError {
+  constructor(message: string, details?: Record<string, unknown>) {
+    super(message, 'VALIDATION_ERROR', 422, details);
+    this.name = 'ValidationError';
+    Object.setPrototypeOf(this, ValidationError.prototype);
+  }
+}
+

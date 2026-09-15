@@ -148,5 +148,43 @@ A cada ciclo de entrega e conclusão de fase solicitada pelo usuário, este arqu
 
 ---
 
+### [2026-09-15] — Conclusão da FASE 4: Financial Customers
+
+* **Objetivo da Sessão**: Estabelecer a sincronização e gestão de clientes pagadores entre o CRM e o provedor Asaas Sandbox, garantindo prevenção de duplicidade, mapeamento de ID externo, integridade referencial com contatos e endpoints REST protegidos por RBAC.
+* **Tarefas Executadas**:
+  1. **Serviço de Domínio `FinancialCustomerService` (`src/modules/financial/services/financial-customer.service.ts`)**:
+     - Implementação do fluxo completo: `CRM Contact` ➔ `Financial Customer` ➔ `Asaas Customer`.
+     - **Prevenção de Duplicidade & Idempotência**: Consulta prévia por `crm_contact_id` antes de qualquer requisição externa; contatos já cadastrados são retornados imediatamente sem sobrecarga no gateway.
+     - **Resolução Tardia de ID Externo**: Vinculação de `external_customer_id` caso o cliente exista localmente sem cadastro no Asaas.
+     - Validação rigorosa via Zod (`createFinancialCustomerSchema`) para CPF/CNPJ, e-mail, telefone e endereço.
+     - Trilha de auditoria automática em cada criação ou sincronização (`CUSTOMER_CREATED`, `CUSTOMER_EXTERNAL_ID_ATTACHED`, `CUSTOMER_SYNCED`).
+  2. **Hierarquia de Erros Atualizada (`src/modules/financial/domain/errors.ts`)**:
+     - Adição da classe `ValidationError` com status HTTP 422 e protótipo corrigido para asserções seguras.
+  3. **Endpoints REST `/api/financial/customers` (`src/app/api/financial/customers/route.ts`)**:
+     - `GET`: Lista clientes pagadores da organização com paginação e busca, ou busca pontual por `crmContactId` ou `id` (protegido por `financial.customers.view`).
+     - `POST`: Criação/sincronização de pagador no Asaas com persistência no Supabase e registro de auditoria (protegido por `financial.customers.manage`).
+  4. **Bateria de Testes Automatizados (Vitest)**:
+     - 70 testes aprovados (13 arquivos de teste, 100% de sucesso).
+     - `tests/financial-customer-service.test.ts` (5 testes):
+       - Criação com persistência local e chamada ao Asaas.
+       - Idempotência: retorno de cliente existente sem nova chamada ao gateway.
+       - Vinculação de ID externo tardio.
+       - Rejeição com `ValidationError` para CPF/CNPJ ou dados inválidos.
+       - Sincronização com o gateway e registro de auditoria.
+     - `tests/financial-customer-sandbox.test.ts` (1 teste live):
+       - Criação real de cliente pagador no Asaas Sandbox com retorno de `externalId` no formato `cus_...`.
+       - Consulta real pelo ID no Sandbox confirmando persistência e integridade dos dados cadastrais.
+  5. **Dashboard Atualizado (`src/app/page.tsx`)**:
+     - Badge e painel atualizados para **FASE 4 CONCLUÍDA**, refletindo o status da sincronização de pagadores, contagem de testes (70/70) e indicação visual para a Fase 5.
+  6. **Compilação e Tipagem**:
+     - `npx tsc --noEmit` aprovado com 0 erros.
+* **Critério de Parada**: Respeitado integralmente. Clientes pagadores criados e sincronizados com sucesso. Nenhuma cobrança financeira foi emitida nesta fase.
+* **Status Atual**:
+  - **FASE 4 CONCLUÍDA COM SUCESSO**.
+  - Parada obrigatória: aguardando validação do usuário para liberação da **FASE 5 — Charges (Contas a Receber)**.
+
+---
+
 <!-- Próximos registros serão adicionados incrementalmente ao final de cada fase/tarefa -->
+
 
