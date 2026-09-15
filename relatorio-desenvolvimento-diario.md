@@ -103,4 +103,50 @@ A cada ciclo de entrega e conclusão de fase solicitada pelo usuário, este arqu
 
 ---
 
+### [2026-09-15] — Conclusão da FASE 3: Asaas Provider / Sandbox Connectivity
+
+* **Objetivo da Sessão**: Implementação do cliente HTTP resiliente para o gateway Asaas, mapeador de status canônicos, implementação da SPI `PaymentProvider` (`AsaasProvider`), gerenciamento seguro de credenciais e validação de conectividade live com o Asaas Sandbox.
+* **Tarefas Executadas**:
+  1. **AsaasHttpClient (`src/modules/financial/providers/asaas/asaas-http-client.ts`)**:
+     - Injeção segura de credencial `access_token` nos headers HTTP (nunca em query params ou logs).
+     - Identificador de cliente obrigatório: `User-Agent: EssenceFinancial/1.0`.
+     - Timeout configurável por chamada via `AbortController`.
+     - Sistema de retries com backoff exponencial (500ms, 1000ms, 2000ms...) em erros transitórios 5xx.
+     - Fail-fast imediato em erros de cliente 4xx (`AsaasHttpError`).
+     - Suporte transparente a header `Idempotency-Key` em requisições de mutação.
+     - Sanitização estrita: supressão de dados sensíveis e chaves em mensagens de exceção e logs.
+  2. **AsaasWebhookMapper (`src/modules/financial/providers/asaas/asaas-webhook-mapper.ts`)**:
+     - Mapeamento bidirecional dos status de cobrança do Asaas para o enum canônico `FinancialChargeStatus` (`AWAITING_PAYMENT`, `PAID`, `OVERDUE`, `REFUNDED`, `CANCELLED`).
+     - Fallback seguro para `PENDING_RECONCILIATION` para qualquer status desconhecido.
+     - Mapeamento de eventos de webhook (`PAYMENT_RECEIVED` ➔ `CHARGE_PAID`, `PAYMENT_OVERDUE` ➔ `CHARGE_OVERDUE`, etc.).
+  3. **Configuração e Gerenciador de Credenciais (`src/modules/financial/providers/asaas/asaas-config.ts`)**:
+     - Resolução automática entre ambientes `SANDBOX` (`https://sandbox.asaas.com/api/v3`) e `PRODUCTION` (`https://api.asaas.com/v3`).
+     - Leitura segura de `ASAAS_SANDBOX_API_KEY` do `.env.local` sem vazamento para o client.
+  4. **AsaasProvider SPI Adapter (`src/modules/financial/providers/asaas/asaas.provider.ts`)**:
+     - Implementação da interface `PaymentProvider` SPI com identificador `asaas`.
+     - Métodos de diagnóstico e conectividade: `testConnection()`, `getAccountInfo()`, `getAccountStatus()`, `getBalance()`.
+     - Implementação tipada e resiliente dos contratos de Customers, Charges e Subscriptions para as fases subsequentes.
+  5. **Módulo Asaas Barrel Export (`src/modules/financial/providers/asaas/index.ts`)**:
+     - Exportação unificada e factory `createAsaasProvider()`.
+  6. **Bateria de Testes Automatizados (Vitest)**:
+     - 64 testes aprovados (11 arquivos de teste, 100% de sucesso).
+     - `tests/asaas-http-client.test.ts`: 6 testes cobrindo headers, retries 5xx, fail-fast 4xx, timeout e proteção contra vazamento de chaves.
+     - `tests/asaas-webhook-mapper.test.ts`: 8 testes cobrindo mapeamento de status e eventos.
+     - `tests/asaas-provider.test.ts`: 7 testes validando o contrato SPI e orquestração de chamadas.
+     - `tests/asaas-sandbox-connectivity.test.ts`: 5 testes de integração real contra o gateway Sandbox do Asaas:
+       - Conexão autenticada confirmada (`HTTP 200`).
+       - Leitura da conta oficial vinculada: `ESSENCE COMERCIO E SERVICOS LTDA`.
+       - Status comercial confirmado: `commercialInfo: APPROVED`.
+       - Consulta de saldo da conta Sandbox realizada.
+  7. **Compilação e Build**:
+     - `npx tsc --noEmit` aprovado com 0 erros.
+     - `npm run build` executado e otimizado com sucesso pelo Next.js.
+* **Critério de Parada**: Respeitado integralmente. Testes restritos a conectividade e consulta de conta. Nenhuma cobrança ou pagador foi criado nesta fase.
+* **Status Atual**:
+  - **FASE 3 CONCLUÍDA COM SUCESSO**.
+  - Parada obrigatória: aguardando validação do usuário para liberação da **FASE 4 — Financial Customers**.
+
+---
+
 <!-- Próximos registros serão adicionados incrementalmente ao final de cada fase/tarefa -->
+
