@@ -64,4 +64,43 @@ A cada ciclo de entrega e conclusão de fase solicitada pelo usuário, este arqu
 
 ---
 
+### [2026-09-14] — Conclusão da FASE 2: Financial Domain + Application Foundation
+
+* **Objetivo da Sessão**: Implementação da estrutura interna de serviços de aplicação, repositórios de dados com Supabase Server Client, interface SPI agnóstica a provedor, middleware de autenticação/RBAC e fundação de idempotência.
+* **Tarefas Executadas**:
+  1. **Configuração do `.env.local`**:
+     - Preenchimento das chaves `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` para conexão com o banco compartilhado do Essence CRM (`hndixreompnljpohxprl`).
+  2. **Supabase Clients (`src/lib/supabase/`)**:
+     - `server.ts`: Supabase Server Client autenticado (respeita RLS via cookie) + Admin Client (service_role para webhooks e auditoria).
+     - `client.ts`: Supabase Browser Client para Client Components.
+  3. **Interface SPI `PaymentProvider` (`src/modules/financial/providers/`)**:
+     - Contrato formal agnóstico a provedor com DTOs para customers, charges e subscriptions.
+     - Testado com mock provider que satisfaz o contrato completo.
+  4. **Tenant Resolver & Context (`src/modules/financial/application/tenant-resolver.ts`)**:
+     - Resolução de `organization_id`, `userId`, `email` e `role` a partir do Supabase Auth + tabela `users` do CRM.
+  5. **Repositórios de Dados (`src/modules/financial/repositories/`)**:
+     - `FinancialAccountRepository`: CRUD de contas financeiras isoladas por tenant.
+     - `FinancialCustomerRepository`: Vínculo CRM → Financeiro com busca por `crm_contact_id` e `external_customer_id`.
+     - `FinancialChargeRepository`: Cobranças com idempotência, filtros, paginação e busca de reconciliação.
+     - `FinancialWebhookRepository`: Ingestão atômica com deduplicação (`23505`) e controle de retry.
+     - `FinancialAuditRepository`: Trilha de auditoria imutável (insert-only).
+     - `FinancialSettingsRepository`: Configurações financeiras com upsert por organização.
+  6. **Serviços de Domínio (`src/modules/financial/services/`)**:
+     - `FinancialAccountService`: Orquestração de criação/atualização de conta com auditoria automática.
+     - `FinancialAuditService`: Interface simplificada para registro de eventos de auditoria.
+  7. **Middleware de Autenticação & RBAC (`src/modules/financial/application/middleware.ts`)**:
+     - Wrapper `withFinancialAuth()` para Route Handlers com autenticação, resolução de tenant, checagem RBAC e tratamento padronizado de erros HTTP.
+  8. **Fundação de Idempotência (`src/modules/financial/application/idempotency.ts`)**:
+     - Geração de chaves únicas e verificação de duplicidade com opção de retorno idempotente ou rejeição explícita.
+  9. **Testes Automatizados (Vitest)**:
+     - 38 testes executados com 100% de aprovação (7 arquivos de teste).
+     - Novos testes: `domain-errors.test.ts` (7), `idempotency.test.ts` (6), `payment-provider-spi.test.ts` (2), `financial-account-service.test.ts` (3).
+     - Verificação estática `npx tsc --noEmit` aprovada com 0 erros.
+* **Critério de Parada**: Nenhuma operação externa real ao gateway Asaas. Domínio 100% testado com mocks.
+* **Status Atual**:
+  - **FASE 2 CONCLUÍDA COM SUCESSO**.
+  - Parada obrigatória: aguardando validação do usuário para liberação da **FASE 3 — Asaas Provider / Sandbox Connectivity**.
+
+---
+
 <!-- Próximos registros serão adicionados incrementalmente ao final de cada fase/tarefa -->
