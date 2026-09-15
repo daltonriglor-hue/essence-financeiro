@@ -310,6 +310,7 @@ export interface FinancialSettings {
 
 export interface CreateChargeDTO {
   customer_id: string;
+  account_id?: string;
   amount_cents: number;
   billing_type: FinancialBillingType;
   due_date: string; // YYYY-MM-DD

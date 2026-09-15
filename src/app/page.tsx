@@ -25,6 +25,7 @@ import {
   ArrowRight,
   Sparkles,
   UserCheck,
+  QrCode,
 } from 'lucide-react';
 import { createAsaasProvider } from '@/modules/financial/providers/asaas';
 
@@ -135,13 +136,13 @@ export default async function Home() {
 
             <div className="space-y-1">
               <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 font-medium text-sm cursor-pointer transition">
-                <Users size={18} className="text-amber-500" />
-                <span className="font-semibold text-slate-900">Clientes & Pagadores</span>
+                <Users size={18} className="text-slate-500" />
+                <span>Clientes & Pagadores</span>
               </div>
 
               <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 font-medium text-sm cursor-pointer transition">
-                <CreditCard size={18} className="text-slate-500" />
-                <span>Cobranças (Receber)</span>
+                <CreditCard size={18} className="text-amber-500" />
+                <span className="font-semibold text-slate-900">Cobranças (Receber)</span>
               </div>
 
               <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 font-medium text-sm cursor-pointer transition">
@@ -212,11 +213,11 @@ export default async function Home() {
               </h1>
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                FASE 4 CONCLUÍDA
+                FASE 5 CONCLUÍDA
               </span>
             </div>
             <p className="text-slate-500 text-sm mt-1">
-              Sincronização de Clientes (CRM Contact ➔ Asaas Customer) & isolamento multi-tenant ativo
+              Motor de Cobranças Pix, Boleto e Link com Idempotência & isolamento multi-tenant ativo
             </p>
           </div>
 
@@ -258,18 +259,18 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Card 2: Clientes Pagadores */}
+          {/* Card 2: Motor de Cobranças */}
           <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
             <div className="flex items-center justify-between text-xs font-bold text-slate-400 tracking-wider uppercase mb-3">
-              <span>PAGADORES (FASE 4)</span>
-              <UserCheck size={18} className="text-amber-500" />
+              <span>COBRANÇAS (FASE 5)</span>
+              <QrCode size={18} className="text-amber-500" />
             </div>
             <div className="text-2xl font-black text-slate-900">
-              Sincronizado
+              Pix & Boleto
             </div>
             <div className="text-xs text-slate-500 mt-2 flex items-center gap-1">
               <ShieldCheck size={14} className="text-emerald-500" />
-              CRM Contact ➔ Asaas Customer
+              QR Code, Copia e Cola & Barcode
             </div>
           </div>
 
@@ -294,31 +295,31 @@ export default async function Home() {
               <span>TESTES AUTOMATIZADOS</span>
               <CheckCircle2 size={18} className="text-emerald-500" />
             </div>
-            <div className="text-2xl font-black text-emerald-600">70 / 70 (100%)</div>
+            <div className="text-2xl font-black text-emerald-600">78 / 78 (100%)</div>
             <div className="text-xs text-slate-500 mt-2">
-              13 arquivos de teste aprovados
+              15 arquivos de teste aprovados
             </div>
           </div>
         </div>
 
-        {/* PAINEL DE CONECTIVIDADE LIVE DA FASE 3 E 4 */}
+        {/* PAINEL DE CONECTIVIDADE LIVE DA FASE 5 */}
         <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-100 gap-3">
             <div>
               <div className="flex items-center gap-2">
                 <Sparkles size={20} className="text-amber-500" />
                 <h2 className="text-lg font-bold text-slate-900">
-                  Integração Concluída — FASE 4: Financial Customers
+                  Motor Operacional — FASE 5: Charges (Contas a Receber)
                 </h2>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Serviço <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-xs">FinancialCustomerService</code> ativo com prevenção de duplicidade, mapeamento idempotente e endpoints REST com RBAC.
+                Serviço <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-xs">FinancialChargeService</code> ativo com emissão multi-método, idempotência estrita, resiliência a timeout e cancelamento.
               </p>
             </div>
             <div className="flex items-center gap-2">
               <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                Endpoint /api/financial/customers Ativo
+                Endpoints /api/financial/charges Ativos
               </span>
             </div>
           </div>
@@ -329,59 +330,59 @@ export default async function Home() {
               <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60">
                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <Building2 size={16} className="text-slate-600" />
-                  <span>Titular da Conta Asaas</span>
+                  <span>Conta Asaas Vinculada</span>
                 </div>
                 <div className="font-bold text-slate-900 text-sm">{accountInfo.name}</div>
                 <div className="text-xs text-slate-500 mt-1 font-mono">{accountInfo.email}</div>
                 <div className="text-xs text-slate-500 mt-1">CNPJ: {accountInfo.cpfCnpj}</div>
               </div>
 
-              {/* Coluna 2: Status Regulatório */}
+              {/* Coluna 2: Métodos de Cobrança Suportados */}
               <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60">
                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <ShieldCheck size={16} className="text-slate-600" />
-                  <span>Validações Regulatórias</span>
+                  <CreditCard size={16} className="text-slate-600" />
+                  <span>Métodos de Pagamento</span>
                 </div>
                 <div className="space-y-1.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-600">Info Comercial:</span>
+                    <span className="text-slate-600">Pix:</span>
                     <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                      {accountStatus?.commercialInfo ?? 'APPROVED'}
+                      QR Code + Copia e Cola
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-600">Conta Bancária:</span>
+                    <span className="text-slate-600">Boleto:</span>
                     <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                      {accountStatus?.bankAccountInfo ?? 'APPROVED'}
+                      Linha Digitável + PDF
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-600">Documentação:</span>
+                    <span className="text-slate-600">Cartão:</span>
                     <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                      {accountStatus?.documentation ?? 'APPROVED'}
+                      Invoice Hospedada
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Coluna 3: Sincronização de Pagadores */}
+              {/* Coluna 3: Garantias de Idempotência */}
               <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60">
                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <KeyRound size={16} className="text-slate-600" />
-                  <span>Fluxo de Pagadores (Fase 4)</span>
+                  <span>Garantias & Resiliência</span>
                 </div>
                 <div className="space-y-1.5 text-xs text-slate-600">
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-emerald-500" />
-                    <span>Mapeamento CRM Contact ➔ Asaas</span>
+                    <span>Idempotency-Key obrigatória</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-emerald-500" />
-                    <span>Prevenção de duplicidade por contato</span>
+                    <span>Timeout ➔ PENDING_RECONCILIATION</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-emerald-500" />
-                    <span>Trilha de auditoria em cada criação</span>
+                    <span>Cancelamento sincronizado com gateway</span>
                   </div>
                 </div>
               </div>
@@ -399,19 +400,19 @@ export default async function Home() {
           <div className="mt-6 p-4 rounded-xl bg-amber-50/70 border border-amber-200 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-amber-400/20 text-amber-700 flex items-center justify-center shrink-0">
-                <CreditCard size={18} />
+                <Receipt size={18} />
               </div>
               <div>
                 <div className="text-xs font-bold text-amber-950 uppercase tracking-wide">
-                  Pronto para a FASE 5 — Charges (Contas a Receber)
+                  Pronto para a FASE 6 — Webhooks & Ingestão Assíncrona
                 </div>
                 <div className="text-xs text-amber-800 mt-0.5">
-                  Com a sincronização de clientes pagadores consolidada, o próximo ciclo implementará a emissão de cobranças Pix (QR Code + Copia e Cola), Boleto e Link de Pagamento.
+                  Com o motor de cobranças consolidado, o próximo ciclo implementará a ingestão de notificações do Asaas (<code className="font-mono text-xs bg-amber-100 px-1 py-0.2 rounded">/api/webhooks/asaas</code>) com deduplicação atômica e liquidação automática.
                 </div>
               </div>
             </div>
             <div className="hidden lg:flex items-center gap-2 font-bold text-xs text-amber-950 bg-amber-200/60 px-3 py-1.5 rounded-lg shrink-0">
-              <span>Próxima: Fase 5</span>
+              <span>Próxima: Fase 6</span>
               <ArrowRight size={14} />
             </div>
           </div>
@@ -423,14 +424,34 @@ export default async function Home() {
           <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
             <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
               <CheckCircle2 size={18} className="text-emerald-500" />
-              <span>Suíte de Testes (70 testes aprovados)</span>
+              <span>Suíte de Testes (78 testes aprovados)</span>
             </h3>
 
             <div className="space-y-3 text-xs">
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
                 <div>
+                  <div className="font-semibold text-slate-800">tests/financial-charge-service.test.ts</div>
+                  <div className="text-slate-500 text-[11px]">Pix, Boleto, Idempotência, Timeout e Cancelamento</div>
+                </div>
+                <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  6/6 Pass
+                </span>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <div className="font-semibold text-slate-800">tests/financial-charge-sandbox.test.ts</div>
+                  <div className="text-slate-500 text-[11px]">Emissão Pix QR Code e Boleto real no Asaas Sandbox</div>
+                </div>
+                <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  2/2 Pass
+                </span>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                <div>
                   <div className="font-semibold text-slate-800">tests/financial-customer-service.test.ts</div>
-                  <div className="text-slate-500 text-[11px]">Idempotência, validação de dados e auditoria</div>
+                  <div className="text-slate-500 text-[11px]">Sincronização CRM Contact ➔ Asaas Pagador</div>
                 </div>
                 <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                   5/5 Pass
@@ -449,31 +470,11 @@ export default async function Home() {
 
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
                 <div>
-                  <div className="font-semibold text-slate-800">tests/asaas-sandbox-connectivity.test.ts</div>
-                  <div className="text-slate-500 text-[11px]">Conexão live real com Sandbox Asaas</div>
-                </div>
-                <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  5/5 Pass
-                </span>
-              </div>
-
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-slate-800">tests/asaas-http-client.test.ts</div>
-                  <div className="text-slate-500 text-[11px]">Headers, timeout, retries 5xx e sanitização</div>
-                </div>
-                <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  6/6 Pass
-                </span>
-              </div>
-
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-                <div>
                   <div className="font-semibold text-slate-800">Testes das Fases 1 a 3</div>
-                  <div className="text-slate-500 text-[11px]">SPI Provider, Schemas, RBAC, RLS, Domain Errors</div>
+                  <div className="text-slate-500 text-[11px]">SPI Provider, Schemas, RBAC, RLS, Domain Errors, HTTP Client</div>
                 </div>
                 <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  53/53 Pass
+                  64/64 Pass
                 </span>
               </div>
             </div>
@@ -519,12 +520,20 @@ export default async function Home() {
                 <span className="text-[11px] font-bold text-emerald-700 uppercase">Concluída</span>
               </div>
 
+              <div className="p-2.5 bg-emerald-50/80 rounded-xl border border-emerald-200 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-emerald-600" />
+                  <span className="font-semibold text-emerald-950">FASE 5: Charges (Contas a Receber)</span>
+                </div>
+                <span className="text-[11px] font-bold text-emerald-700 uppercase">Concluída</span>
+              </div>
+
               <div className="p-2.5 bg-amber-50/60 rounded-xl border border-amber-300 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full border-2 border-amber-500 flex items-center justify-center">
                     <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></div>
                   </div>
-                  <span className="font-bold text-amber-950">FASE 5: Charges (Cobranças Pix / Boleto / Cartão)</span>
+                  <span className="font-bold text-amber-950">FASE 6: Webhooks & Ingestão Assíncrona</span>
                 </div>
                 <span className="text-[11px] font-bold text-amber-700 uppercase">Aguardando Validação</span>
               </div>

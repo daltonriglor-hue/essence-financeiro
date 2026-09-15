@@ -185,6 +185,53 @@ A cada ciclo de entrega e conclusão de fase solicitada pelo usuário, este arqu
 
 ---
 
+### [2026-09-15] — Conclusão da FASE 5: Charges (Contas a Receber)
+
+* **Objetivo da Sessão**: Implementar o motor de emissão de cobranças avulsas para Pix, Boleto e Cartão de Crédito (Checkout Hospedado), garantindo idempotência estrita por `Idempotency-Key`, resiliência a timeout de rede, cancelamento sincronizado com o Asaas e endpoints REST com controle RBAC.
+* **Tarefas Executadas**:
+  1. **Serviço de Domínio `FinancialChargeService` (`src/modules/financial/services/financial-charge.service.ts`)**:
+     - Emissão de cobranças avulsas com conversão transparente de centavos inteiros (`amount_cents BIGINT`) para reais no gateway.
+     - **Garantia Estrita de Idempotência**: Consulta prévia à tabela `financial_charges` por `(organization_id, idempotency_key)`; requisições duplicadas retornam a cobrança existente sem criar nova cobrança no Asaas.
+     - **Resolução Automática de Pagador e Conta**: Vinculação sob demanda do cliente caso ainda não possua cadastro no gateway e resolução da conta financeira padrão.
+     - **Geração de Artefatos de Pagamento**:
+       - Pix: QR Code base64 e Pix Copia e Cola.
+       - Boleto: Código de Barras, Linha Digitável e URL do PDF.
+       - Cartão: Link de pagamento / Invoice hospedada segura (zero exposição PCI).
+     - **Resiliência a Timeout**: Em caso de timeout de rede (`AsaasTimeoutError` ou abort), a cobrança é persistida localmente com status `PENDING_RECONCILIATION`, impedindo reemissões cegas e preparando o registro para conciliação ativa.
+     - **Cancelamento Seguro**: Validação de estados impedindo cancelamento de cobranças já pagas (`PAID`) ou estornadas (`REFUNDED`), sincronização de cancelamento no gateway e atualização para `CANCELLED`.
+     - Trilha de auditoria automática em cada mutação (`CHARGE_CREATED`, `CHARGE_CREATED_PENDING_RECONCILIATION`, `CHARGE_CANCELLED`, `CHARGE_SYNCED`).
+  2. **Aprimoramento do Adaptador `AsaasProvider` (`src/modules/financial/providers/asaas/asaas.provider.ts`)**:
+     - Captura aprimorada de dados de boleto (`identificationField` e `barCode`).
+     - Tratamento nativo do comportamento do Asaas onde cobranças canceladas retornam `deleted: true` (mapeado de forma canônica para `CANCELLED`).
+     - Helpers dedicados `getPixQrCode()` e `getIdentificationField()`.
+  3. **Endpoints REST de Cobranças (`src/app/api/financial/charges/`)**:
+     - `GET /api/financial/charges`: Lista cobranças com filtros (status, customerId, período) e paginação (protegido por `financial.charges.view`).
+     - `POST /api/financial/charges`: Emissão com validação Zod e idempotência (protegido por `financial.charges.create`).
+     - `GET /api/financial/charges/[id]`: Consulta individual de cobrança por ID (protegido por `financial.charges.view`).
+     - `POST /api/financial/charges/[id]/cancel`: Cancelamento seguro no gateway e no banco (protegido por `financial.charges.cancel`).
+  4. **Bateria de Testes Automatizados (Vitest)**:
+     - 78 testes aprovados (15 arquivos de teste, 100% de sucesso).
+     - `tests/financial-charge-service.test.ts` (6 testes unitários):
+       - Emissão Pix com QR Code e conversão de centavos.
+       - Emissão Boleto com Linha Digitável e Barcode.
+       - Idempotência estrita por chave.
+       - Transição para `PENDING_RECONCILIATION` em timeout.
+       - Cancelamento seguro e rejeição de cancelamento em cobrança paga.
+     - `tests/financial-charge-sandbox.test.ts` (2 testes live no Asaas Sandbox):
+       - Emissão real de Pix com QR Code e Copia e Cola gerados no Sandbox.
+       - Emissão real de Boleto e cancelamento confirmado no gateway Asaas.
+  5. **Dashboard Atualizado (`src/app/page.tsx`)**:
+     - Painel atualizado para **FASE 5 CONCLUÍDA**, exibindo suporte a Pix, Boleto, contagem de testes (78/78) e preparação para a Fase 6.
+  6. **Compilação e Tipagem**:
+     - `npx tsc --noEmit` aprovado com 0 erros.
+* **Critério de Parada**: Respeitado integralmente. Cobranças avulsas emitidas, testadas e canceladas com sucesso em ambiente de testes.
+* **Status Atual**:
+  - **FASE 5 CONCLUÍDA COM SUCESSO**.
+  - Parada obrigatória: aguardando validação do usuário para liberação da **FASE 6 — Webhooks & Ingestão Assíncrona**.
+
+---
+
 <!-- Próximos registros serão adicionados incrementalmente ao final de cada fase/tarefa -->
+
 
 

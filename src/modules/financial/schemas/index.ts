@@ -43,6 +43,7 @@ export const createFinancialCustomerSchema = z.object({
 // 2. Schema para Emissão de Cobrança
 export const createFinancialChargeSchema = z.object({
   customer_id: z.string().uuid('ID do cliente financeiro deve ser um UUID válido'),
+  account_id: z.string().uuid('ID da conta financeira deve ser um UUID válido').optional().or(z.literal('')),
   amount_cents: z
     .number({ invalid_type_error: 'Valor deve ser numérico em centavos' })
     .int('Valor em centavos deve ser um número inteiro')

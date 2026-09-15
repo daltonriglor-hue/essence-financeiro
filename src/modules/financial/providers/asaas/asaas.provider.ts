@@ -66,6 +66,7 @@ export interface AsaasPaymentRawResponse {
   value: number;
   netValue?: number;
   status: string;
+  deleted?: boolean;
   billingType: string;
   dueDate: string;
   paymentDate?: string;
@@ -226,7 +227,30 @@ export class AsaasProvider implements PaymentProvider {
         pixQrCodeBase64 = pix.encodedImage;
         pixCopyPaste = pix.payload;
       } catch {
-        // Será recuperado via endpoint específico ou webhook
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 600));
+          const pix = await this.client.get<AsaasPixQrCodeRawResponse>(`/payments/${response.id}/pixQrCode`);
+          pixQrCodeBase64 = pix.encodedImage;
+          pixCopyPaste = pix.payload;
+        } catch {
+          // Será recuperado via endpoint específico ou webhook
+        }
+      }
+    }
+
+    let bankSlipBarCode = response.barCode;
+    let bankSlipDigitableLine = response.identificationField;
+
+    if (data.billingType === 'BOLETO') {
+      try {
+        const slip = await this.client.get<{
+          identificationField?: string;
+          barCode?: string;
+        }>(`/payments/${response.id}/identificationField`);
+        if (slip?.identificationField) bankSlipDigitableLine = slip.identificationField;
+        if (slip?.barCode) bankSlipBarCode = slip.barCode;
+      } catch {
+        // Ignora se não disponível de imediato
       }
     }
 
@@ -242,17 +266,45 @@ export class AsaasProvider implements PaymentProvider {
       bankSlipUrl: response.bankSlipUrl,
       pixQrCodeBase64,
       pixCopyPaste,
-      bankSlipBarCode: response.barCode,
-      bankSlipDigitableLine: response.identificationField,
+      bankSlipBarCode,
+      bankSlipDigitableLine,
     };
   }
 
   async getCharge(externalId: string): Promise<ProviderChargeResponse> {
     const response = await this.client.get<AsaasPaymentRawResponse>(`/payments/${externalId}`);
 
+    let pixQrCodeBase64: string | undefined;
+    let pixCopyPaste: string | undefined;
+    let bankSlipBarCode = response.barCode;
+    let bankSlipDigitableLine = response.identificationField;
+
+    if (response.billingType === 'PIX') {
+      try {
+        const pix = await this.client.get<AsaasPixQrCodeRawResponse>(`/payments/${response.id}/pixQrCode`);
+        pixQrCodeBase64 = pix.encodedImage;
+        pixCopyPaste = pix.payload;
+      } catch {
+        // Ignora se indisponível
+      }
+    } else if (response.billingType === 'BOLETO') {
+      try {
+        const slip = await this.client.get<{
+          identificationField?: string;
+          barCode?: string;
+        }>(`/payments/${response.id}/identificationField`);
+        if (slip?.identificationField) bankSlipDigitableLine = slip.identificationField;
+        if (slip?.barCode) bankSlipBarCode = slip.barCode;
+      } catch {
+        // Ignora se indisponível
+      }
+    }
+
+    const effectiveStatus = response.deleted ? 'CANCELLED' : response.status;
+
     return {
       externalId: response.id,
-      status: response.status,
+      status: effectiveStatus,
       value: response.value,
       netValue: response.netValue,
       billingType: response.billingType,
@@ -260,13 +312,31 @@ export class AsaasProvider implements PaymentProvider {
       paymentDate: response.paymentDate,
       invoiceUrl: response.invoiceUrl,
       bankSlipUrl: response.bankSlipUrl,
-      bankSlipBarCode: response.barCode,
-      bankSlipDigitableLine: response.identificationField,
+      pixQrCodeBase64,
+      pixCopyPaste,
+      bankSlipBarCode,
+      bankSlipDigitableLine,
     };
   }
 
   async cancelCharge(externalId: string): Promise<void> {
     await this.client.delete(`/payments/${externalId}`);
+  }
+
+  /**
+   * Helper direto para consulta de QR Code Pix
+   */
+  async getPixQrCode(paymentId: string): Promise<AsaasPixQrCodeRawResponse> {
+    return this.client.get<AsaasPixQrCodeRawResponse>(`/payments/${paymentId}/pixQrCode`);
+  }
+
+  /**
+   * Helper direto para consulta de Linha Digitável de Boleto
+   */
+  async getIdentificationField(paymentId: string): Promise<{ identificationField: string; barCode: string }> {
+    return this.client.get<{ identificationField: string; barCode: string }>(
+      `/payments/${paymentId}/identificationField`
+    );
   }
 
   // ==========================================================================
